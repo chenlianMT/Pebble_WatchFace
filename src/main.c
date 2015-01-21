@@ -130,6 +130,8 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
     secondPoint.x = turn_sub_to_pos_x(second_value);
     secondPoint.y = turn_sub_to_pos_y(second_value);
     graphics_fill_circle(ctx, secondPoint, 7);
+    graphics_context_set_fill_color(ctx, GColorWhite); // Draw outer bound of circle
+    graphics_fill_circle(ctx, secondPoint, 5);
     
     // Draw the current minute
     int side_length = 7;
@@ -279,7 +281,11 @@ static void bars_update() {
         } if (collision_of_all_bars == 0){
              hour_bars[i].vel.x *= 0.98;
              hour_bars[i].vel.y *= 0.98;
-        }
+        } if (absolut(hour_bars[i].vel.x) < 0.1){
+            hour_bars[i].vel.x = 0; // Try to set small velocity to 0 directly
+        } if (absolut(hour_bars[i].vel.y) < 0.1){
+            hour_bars[i].vel.y = 0; // Try to set small velocity to 0 directly
+        } 
         
         // Update all parameters basing on new location
         hour_bars[i].pos.x += hour_bars[i].vel.x;
@@ -319,19 +325,19 @@ static void main_window_load(Window *window) {
     // set global time
     get_current_time();
     
-    // Create Background Pots Layer
-    s_backgroundPots_layer = layer_create(GRect(0, 0, 144, 168));
-    layer_add_child(window_get_root_layer(window), s_backgroundPots_layer);
-    
-    // Set Layer Update Procedure for Background Pots Layer
-    layer_set_update_proc(s_backgroundPots_layer, backgroundPots_update_proc);
-    
     // Create Canvas Layer
     s_canvas_layer = layer_create(GRect(0, 0, 144, 168));
     layer_add_child(window_get_root_layer(window), s_canvas_layer);
     
     // Set Layer Update Procedure for Canvas Layer
     layer_set_update_proc(s_canvas_layer, canvas_update_proc);
+    
+    // Create Background Pots Layer
+    s_backgroundPots_layer = layer_create(GRect(0, 0, 144, 168));
+    layer_add_child(window_get_root_layer(window), s_backgroundPots_layer);
+    
+    // Set Layer Update Procedure for Background Pots Layer
+    layer_set_update_proc(s_backgroundPots_layer, backgroundPots_update_proc);
     
     // Set Interter Layers
     bars_init();

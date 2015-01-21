@@ -129,9 +129,9 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
     // Draw the current second
     secondPoint.x = turn_sub_to_pos_x(second_value);
     secondPoint.y = turn_sub_to_pos_y(second_value);
-    graphics_fill_circle(ctx, secondPoint, 7);
+    graphics_fill_circle(ctx, secondPoint, 9);
     graphics_context_set_fill_color(ctx, GColorWhite); // Draw outer bound of circle
-    graphics_fill_circle(ctx, secondPoint, 5);
+    graphics_fill_circle(ctx, secondPoint, 6);
     
     // Draw the current minute
     int side_length = 7;
@@ -281,11 +281,7 @@ static void bars_update() {
         } if (collision_of_all_bars == 0){
              hour_bars[i].vel.x *= 0.98;
              hour_bars[i].vel.y *= 0.98;
-        } if (absolut(hour_bars[i].vel.x) < 0.1){
-            hour_bars[i].vel.x = 0; // Try to set small velocity to 0 directly
-        } if (absolut(hour_bars[i].vel.y) < 0.1){
-            hour_bars[i].vel.y = 0; // Try to set small velocity to 0 directly
-        } 
+        }
         
         // Update all parameters basing on new location
         hour_bars[i].pos.x += hour_bars[i].vel.x;
@@ -377,7 +373,7 @@ static void update_minute(){
     layer_mark_dirty(s_canvas_layer);
 }
 
-static void update_hour(){ /////////////////////////////// Need Modification
+static void update_hour(){
     app_timer_cancel(timer);
     get_current_time();
     bars_init();

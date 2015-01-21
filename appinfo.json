@@ -1,0 +1,35 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "liangchen1ce@gmail.com",
+    "longName": "Tutor0",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/Hours.png",
+                "name": "IMAGE_HOURS",
+                "type": "png"
+            },
+            {
+                "file": "images/LastSecond.png",
+                "name": "IMAGE_LAST_SECOND",
+                "type": "png"
+            },
+            {
+                "file": "fonts/DS-DIGI.TTF",
+                "name": "FONT_DS_DIGI_42",
+                "type": "font"
+            }
+        ]
+    },
+    "shortName": "Tutor0",
+    "uuid": "308677c5-481c-4a67-9eab-4a1b6181f5e0",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}

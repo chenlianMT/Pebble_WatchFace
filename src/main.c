@@ -5,8 +5,8 @@ static int CURRENT_TIME_MINUTE = -1;
 static int CURRENT_TIME_SECOND = -1;// when number window is toggled, every number is set to 0
 
 // Hour bars physical parameters
-#define BAR_DENSITY 0.29
-#define ACCEL_RATIO 0.007
+#define BAR_DENSITY 0.5
+#define ACCEL_RATIO 0.1
 #define ACCEL_STEP_MS 50
 static int DIM_RANGE[12] = {7, 7, 7, 7, 7, 7, 7, 7, 8, 9, 9, 7};
 
@@ -187,7 +187,7 @@ static int update_collision(hour_bar bar1, hour_bar bar2){
 }
 
 static double bar_calc_mass(hour_bar bar) {
-  return bar.dim * bar.dim * BAR_DENSITY;
+  return bar.dim * bar.dim * bar.dim * BAR_DENSITY;
 }
 
 static void bars_init() {
@@ -218,6 +218,37 @@ static void bars_init() {
 
 static void bars_apply_force(Vec2d force) {
     for (int i=0;i<CURRENT_TIME_HOUR;i++){
+        double alpha = 0.01; // wind resistance coefficient
+        double f_resistance_x = alpha * hour_bars[i].dim * hour_bars[i].dim * hour_bars[i].vel.x * hour_bars[i].vel.x;
+        double f_resistance_y = alpha * hour_bars[i].dim * hour_bars[i].dim * hour_bars[i].vel.y * hour_bars[i].vel.y;
+        if (force.x * hour_bars[i].vel.x > 0){ // gravity has the same direction with velocity
+            if (force.x > 0){
+                force.x -= f_resistance_x;
+            } else{
+                force.x += f_resistance_x;
+            }
+        } else{  // gravity has opposite direction with velocity
+            if (force.x > 0){
+                force.x += f_resistance_x;
+            } else{
+                force.x -= f_resistance_x;
+            }
+        }
+        
+        if (force.y * hour_bars[i].vel.y > 0){ // gravity has the same direction with velocity
+            if (force.y > 0){
+                force.y -= f_resistance_y;
+            } else{
+                force.y += f_resistance_y;
+            }
+        } else{  // gravity has opposite direction with velocity
+            if (force.y > 0){
+                force.y += f_resistance_y;
+            } else{
+                force.y -= f_resistance_y;
+            }
+        }
+        
         hour_bars[i].vel.x += force.x/hour_bars[i].mass;
         hour_bars[i].vel.y += force.y/hour_bars[i].mass;
     }
@@ -261,13 +292,13 @@ static void bars_update() {
                 collision_of_all_bars += collision_para;
                 if (collision_para > 0){
                     if (collision_para % 10 == 1){
-                        hour_bars[i].vel.x = absolut(hour_bars[i].vel.x) * 1.01;
+                        hour_bars[i].vel.x = absolut(hour_bars[i].vel.x) * 1;
                     } if (collision_para % 100 > 1){
-                        hour_bars[i].vel.x = -absolut(hour_bars[i].vel.x) * 1.01;
+                        hour_bars[i].vel.x = -absolut(hour_bars[i].vel.x) * 1;
                     } if (collision_para % 1000 > 11){
-                        hour_bars[i].vel.y = -absolut(hour_bars[i].vel.y) * 1.01;
+                        hour_bars[i].vel.y = -absolut(hour_bars[i].vel.y) * 1;
                     } if (collision_para % 10000 > 111){
-                        hour_bars[i].vel.y = absolut(hour_bars[i].vel.y) * 1.01;
+                        hour_bars[i].vel.y = absolut(hour_bars[i].vel.y) * 1;
                     }
                     
                     if (collide_on_walls){
@@ -278,10 +309,11 @@ static void bars_update() {
                     }
                   }
               }
-        } if (collision_of_all_bars == 0){
-             hour_bars[i].vel.x *= 0.98;
-             hour_bars[i].vel.y *= 0.98;
-        }
+         } //if (collision_of_all_bars == 0 && absolut(hour_bars[i].vel.x) > 0.5){
+//              hour_bars[i].vel.x *= 0.99;
+//         } if (collision_of_all_bars == 0 && absolut(hour_bars[i].vel.y) > 0.5){
+//              hour_bars[i].vel.y *= 0.99;
+//         }
         
         // Update all parameters basing on new location
         hour_bars[i].pos.x += hour_bars[i].vel.x;
@@ -305,6 +337,8 @@ static void inverterlayers_draw() {
 }
 
 static void timer_callback(void *data) {
+    CURRENT_TIME_HOUR = 8; // change this to test different hours!!!
+    
     AccelData accel = (AccelData) { .x = 0, .y = 0, .z = 0 };
 
     accel_service_peek(&accel);
@@ -343,7 +377,7 @@ static void main_window_load(Window *window) {
         s_inverterlayers[i] = inverter_layer_create(GRect(hour_bars[i].outer_square.left, hour_bars[i].outer_square.top, hour_bars[i].dim, hour_bars[i].dim));
     }
  
-    //CURRENT_TIME_HOUR = 2;
+    //CURRENT_TIME_HOUR = 12;
     for (int i=0;i<CURRENT_TIME_HOUR;i++){
         layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(s_inverterlayers[i]));
     }
@@ -383,7 +417,7 @@ static void update_hour(){
         s_inverterlayers[i] = inverter_layer_create(GRect(hour_bars[i].outer_square.left, hour_bars[i].outer_square.top, hour_bars[i].dim, hour_bars[i].dim));
     }
  
-    //CURRENT_TIME_HOUR = 2;
+    //CURRENT_TIME_HOUR = 12; 
     for (int i=0;i<CURRENT_TIME_HOUR;i++){
         layer_add_child(window_get_root_layer(s_main_window), inverter_layer_get_layer(s_inverterlayers[i]));
     }
